@@ -2,14 +2,17 @@ import psycopg2
 import streamlit as st
 import random
 import ast
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 def connect_database():
    con = psycopg2.connect(
-      database = "VirtualLibrary",
-      user = "postgres",
-      password = "kinhan33",
-      host = "localhost",
-      port = "5432"
+      database = os.getenv("database"),
+      user = os.getenv("user"),
+      password = os.getenv("password"),
+      host = os.getenv("host"),
+      port = os.getenv("port")
    )
    return con
 
