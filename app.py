@@ -13,8 +13,8 @@ def connect_database():
       # password = os.getenv("password"),
       # host = os.getenv("host"),
       # port = os.getenv("port")
-      os.getenv('uri')
-   
+      # os.getenv('uri')
+      st.secrets["connection"]["uri"]
    )
    return con
 
