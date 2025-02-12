@@ -8,11 +8,13 @@ import os
 load_dotenv()
 def connect_database():
    con = psycopg2.connect(
-      database = os.getenv("database"),
-      user = os.getenv("user"),
-      password = os.getenv("password"),
-      host = os.getenv("host"),
-      port = os.getenv("port")
+      # database = os.getenv("database"),
+      # user = os.getenv("user"),
+      # password = os.getenv("password"),
+      # host = os.getenv("host"),
+      # port = os.getenv("port")
+      os.getenv('uri')
+   
    )
    return con
 
@@ -58,5 +60,5 @@ for title, details in book_dict.items():
    status = details['status']
    format = details['format']
    series = details['series']
-   insert_data(title, author, pages, status, format, series)
+   # insert_data(title, author, pages, status, format, series)
 

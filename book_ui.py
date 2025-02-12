@@ -65,12 +65,14 @@ elif action == "I want to read a book":
             cursor.execute('''select title from Book where (format = 'hardback' or format = 'paperback') and status = 'unread';''')
         elif selected_book == 'An eBook':
             cursor.execute('''select title from Book where format = 'eBook' and status = 'unread';''')
-        all_selected_books = cursor.fetchall()
-        all_book_names = []
-        for book in all_selected_books:
-            all_book_names.append(book[0])
-        randomly_picked_book = random.choice(all_book_names)
-        st.write(randomly_picked_book)
+        if selected_book != '':
+            all_selected_books = cursor.fetchall()
+            all_book_names = []
+            for book in all_selected_books:
+                all_book_names.append(book[0])
+            randomly_picked_book = random.choice(all_book_names)
+            st.write(randomly_picked_book)
+        
 elif action == 'I bought a new book!':
     book_title = st.text_input('Enter Book Title: ')
     book_author = st.text_input('Enter Author: ')
