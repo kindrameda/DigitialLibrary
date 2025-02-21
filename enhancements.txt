@@ -15,3 +15,5 @@ i bought a new book
 set status to unread, ask for format 
 (homework, find all english books to scrape, public site API)
 -allow a scan function mode to scan the ISBN on the physical book? If i buy a scanner
+- hw: find a better way to mark series
+-remove series column
