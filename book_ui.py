@@ -57,9 +57,7 @@ elif action == "I want to read a book":
     elif selected_option == 'Looking for something specific?':
         book_options = ['','A short book', 'A long book', 'A physical book', 'An eBook']
         selected_book = st.selectbox('Filter by:', book_options, format_func = formatting_selectbox)
-        if selected_book == '':
-            st.write("Please select a book type to filter by.")
-        elif selected_book == 'A short book':
+        if selected_book == 'A short book':
             cursor.execute('''select title from Book where pages <= 400 and status = 'unread';''')
         elif selected_book == 'A long book':
             cursor.execute('''select title from Book where pages > 400 and status = 'unread';''')
@@ -69,11 +67,14 @@ elif action == "I want to read a book":
             cursor.execute('''select title from Book where format = 'eBook' and status = 'unread';''')
         if selected_book != '':
             all_selected_books = cursor.fetchall()
-            all_book_names = []
-            for book in all_selected_books:
-                all_book_names.append(book[0])
-            randomly_picked_book = random.choice(all_book_names)
-            st.write(randomly_picked_book)
+            if not all_selected_books: 
+                st.write(f"No books found for the selected filter: {selected_book}.")
+            else:
+                all_book_names = []
+                for book in all_selected_books:
+                    all_book_names.append(book[0])
+                randomly_picked_book = random.choice(all_book_names)
+                st.write(randomly_picked_book)
         
 elif action == 'I bought a new book!':
     book_title = st.text_input('Enter Book Title: ')
