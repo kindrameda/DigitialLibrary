@@ -64,7 +64,7 @@ elif action == "I want to read a book":
         elif selected_book == 'A physical book':
             cursor.execute('''select title from Book where (format = 'hardback' or format = 'paperback') and status = 'unread';''')
         elif selected_book == 'An eBook':
-            cursor.execute('''select title from Book where format = 'eBook' and status = 'unread';''')
+            cursor.execute('''select title from Book where format = 'eBook' and status = 'unread' and title = 'Random';''')
         if selected_book != '':
             all_selected_books = cursor.fetchall()
             if not all_selected_books: 
