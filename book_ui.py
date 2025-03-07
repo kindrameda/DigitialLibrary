@@ -3,6 +3,7 @@ from app import connect_database
 import random
 from app import insert_data
 from utils import formatting_selectbox
+from goodreads_scrape import fetch_book_details
 
 con = connect_database()
 cursor = con.cursor()
@@ -64,25 +65,114 @@ elif action == "I want to read a book":
         elif selected_book == 'A physical book':
             cursor.execute('''select title from Book where (format = 'hardback' or format = 'paperback') and status = 'unread';''')
         elif selected_book == 'An eBook':
-            cursor.execute('''select title from Book where format = 'eBook' and status = 'unread' and title != 'Random';''')
+            cursor.execute('''select title from Book where format = 'eBook' and status = 'unread';''')
         if selected_book != '':
             all_selected_books = cursor.fetchall()
-            if not all_selected_books: 
-                st.write(f"No books found for the selected filter: {selected_book}.")
-            else:
-                all_book_names = []
-                for book in all_selected_books:
-                    all_book_names.append(book[0])
-                randomly_picked_book = random.choice(all_book_names)
-                st.write(randomly_picked_book)
+            all_book_names = []
+            for book in all_selected_books:
+                all_book_names.append(book[0])
+            randomly_picked_book = random.choice(all_book_names)
+            st.write(randomly_picked_book)
         
 elif action == 'I bought a new book!':
-    book_title = st.text_input('Enter Book Title: ')
-    book_author = st.text_input('Enter Author: ')
-    book_pages = st.number_input('Enter pages: ')
-    book_status = 'unread'
-    book_format = st.text_input('Format: ')
-    book_series = st.text_input('Standalone or series?: ')
-    if st.button('Submit'):
-        insert_data(book_title, book_author, book_pages, book_status, book_format, book_series)
+    search_books = ['', 'Manual Entry', 'Goodreads search']
+    selected_book = st.selectbox('Search by:', search_books, format_func = formatting_selectbox)
+    if selected_book == 'Manual Entry':
+        book_title = st.text_input('Enter Book Title: ')
+        book_author = st.text_input('Enter Author: ')
+        book_pages = st.number_input('Enter pages: ')
+        book_status = 'unread'
+        book_format = st.text_input('Format: ')
+        book_series = st.text_input('Standalone or series?: ')
+        if st.button('Submit'):
+            insert_data(book_title, book_author, book_pages, book_status, book_format, book_series)
+    elif selected_book == 'Goodreads search':
+        search_by = st.text_input('Enter ISBN or Title')
+        if st.button('Search'):
+            if search_by:
+                with st.spinner('Searching for books...'):
+                    book_details = fetch_book_details(search_by = search_by)
+                    if book_details:
+                        if search_by.isnumeric():
+                            st.write(f'Results for ISBN {search_by}: ')
+                        else:
+                            st.write(f'Results for title {search_by}: ')
+                        
+                        st.markdown('''
+
+                            <style>
+                                    
+                                    .book-container{
+                                    padding: 15px;
+                                    border-radius: 10px;
+                                    border: 1px solid #ddd;
+                                    background-color: #f9f9f9;
+                                    text-align: center;
+                                    width: 300px;
+                                    color: black;
+                                    margin: 10px;
+                                    }
+                                    
+                                    .book-container img{
+                                    width: 100%;
+                                    height: 300px;
+                                    object-fit: cover;
+                                    border-radius: 5px;
+                                    }
+                                    .col-container{
+                                    display: flex;
+                                    justify-content: space-between;
+                                    }
+                                    
+                                    .col-container > div {
+                                    flex: 1;
+                                    margin-right: 10px;
+                                    }
+                                    
+                            </style>
+
+                                    ''', unsafe_allow_html=True)
+                        for i in range(0, len(book_details), 3):
+                            cols = st.columns(3)
+                            with st.container():
+                                for j in range (3):
+                                    if i + j < len(book_details):
+                                        book = book_details[i + j]
+                                        with cols[j]:
+                                            default_image = 'https://dryofg8nmyqjw.cloudfront.net/images/no-cover.png'
+                                            image = book['picture'] if book['picture'] else default_image
+                                            # if book['picture']:
+                                            #     try:
+                                            #         st.image(book['picture'], width = 200)
+                                            #     except:
+                                            #         st.image(default_image, width = 200)
+                                            # else:
+                                            #     st.image(default_image, width = 200)
+                                            
+                                            # st.write(f"Title: {book['title']}")
+                                            # st.write(f"Author: {book['author']}")
+                                            # st.write(f"Pages: {book['pages']}")
+                                            # st.markdown('</div>', unsafe_allow_html=True)
+                                            st.markdown(
+                                                f'''
+                                                    <div class = 'book-container'>
+                                                        <img src = '{image}' alt = 'book_image'>
+                                                        <h4>{book['title']}</h4>
+                                                        <p><strong>Author: </strong>{book['author']}</p>
+                                                        <p><strong>Pages: </strong>{book['pages']}</p>
+                                                ''', unsafe_allow_html=True
+                                            )
+                            st.markdown('<br>', unsafe_allow_html=True)
+                            
+                                        
+                        # for book in book_details:
+                        #     st.write(f"Title: {book['title']}")
+                        #     st.write(f"Author: {book['author']}")
+                        #     st.write(f"Pages: {book['pages']}")
+                        #     if book['picture'] != '':
+                        #         st.image(book['picture'], width = 200)
+
+
+
+        
 

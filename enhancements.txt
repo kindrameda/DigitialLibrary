@@ -17,4 +17,3 @@ set status to unread, ask for format
 -allow a scan function mode to scan the ISBN on the physical book? If i buy a scanner
 - hw: find a better way to mark series
 -remove series column
-- delete a book button
