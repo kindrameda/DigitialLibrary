@@ -17,6 +17,38 @@ st.title("Kindra's Library 📚")
 
 options = ['', 'I finished a book', 'I want to read a book', 'I bought a new book!' ]
 action = st.selectbox('What do you want to do?',options, format_func = formatting_selectbox)
+
+st.markdown('''
+    <style>
+        .col-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px; /* Increased space between cards */
+        }
+
+        .book-container {
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            text-align: center;
+            width: 300px;
+            color: black;
+            margin-bottom: 20px;
+            flex: 1;
+            max-width: 350px;
+        }
+
+        .book-container img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+    </style>
+''', unsafe_allow_html=True)
+
 if action == 'I finished a book':
     st.session_state.finishedbook = st.text_input(
         "Which book did you finish?", key="book_input"
@@ -98,81 +130,14 @@ elif action == 'I bought a new book!':
                         else:
                             st.write(f'Results for title {search_by}: ')
                         
-                        st.markdown('''
-
-                            <style>
-                                    
-                                    .book-container{
-                                    padding: 15px;
-                                    border-radius: 10px;
-                                    border: 1px solid #ddd;
-                                    background-color: #f9f9f9;
-                                    text-align: center;
-                                    width: 300px;
-                                    color: black;
-                                    margin: 10px;
-                                    }
-                                    
-                                    .book-container img{
-                                    width: 100%;
-                                    height: 300px;
-                                    object-fit: cover;
-                                    border-radius: 5px;
-                                    }
-                                    .col-container{
-                                    display: flex;
-                                    justify-content: space-between;
-                                    }
-                                    
-                                    .col-container > div {
-                                    flex: 1;
-                                    margin-right: 10px;
-                                    }
-                                    
-                            </style>
-
-                                    ''', unsafe_allow_html=True)
-                        for i in range(0, len(book_details), 3):
-                            cols = st.columns(3)
-                            with st.container():
-                                for j in range (3):
-                                    if i + j < len(book_details):
-                                        book = book_details[i + j]
-                                        with cols[j]:
-                                            default_image = 'https://dryofg8nmyqjw.cloudfront.net/images/no-cover.png'
-                                            image = book['picture'] if book['picture'] else default_image
-                                            # if book['picture']:
-                                            #     try:
-                                            #         st.image(book['picture'], width = 200)
-                                            #     except:
-                                            #         st.image(default_image, width = 200)
-                                            # else:
-                                            #     st.image(default_image, width = 200)
-                                            
-                                            # st.write(f"Title: {book['title']}")
-                                            # st.write(f"Author: {book['author']}")
-                                            # st.write(f"Pages: {book['pages']}")
-                                            # st.markdown('</div>', unsafe_allow_html=True)
-                                            st.markdown(
-                                                f'''
-                                                    <div class = 'book-container'>
-                                                        <img src = '{image}' alt = 'book_image'>
-                                                        <h4>{book['title']}</h4>
-                                                        <p><strong>Author: </strong>{book['author']}</p>
-                                                        <p><strong>Pages: </strong>{book['pages']}</p>
-                                                ''', unsafe_allow_html=True
-                                            )
-                            st.markdown('<br>', unsafe_allow_html=True)
-                            
-                                        
-                        # for book in book_details:
-                        #     st.write(f"Title: {book['title']}")
-                        #     st.write(f"Author: {book['author']}")
-                        #     st.write(f"Pages: {book['pages']}")
-                        #     if book['picture'] != '':
-                        #         st.image(book['picture'], width = 200)
-
-
-
-        
-
+                        for book in book_details:
+                            st.markdown(
+                                f'''
+                                    <div class='book-container'>
+                                        <img src='{book['picture'] if book['picture'] else 'https://dryofg8nmyqjw.cloudfront.net/images/no-cover.png'}' alt='book_image'>
+                                        <h4>{book['title']}</h4>
+                                        <p><strong>Author: </strong>{book['author']}</p>
+                                        <p><strong>Pages: </strong>{book['pages']}</p>
+                                    </div>
+                                ''', unsafe_allow_html=True
+                            )
