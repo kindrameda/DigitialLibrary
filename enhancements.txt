@@ -2,7 +2,6 @@ future
 -under "I finished I book" button, add search dropdown by letter, by title 
 and author
 -add undo button to "i finished a book" to unread
-- add picture of the book covers?
 - fix '',
 - take into account when i havent read the first book in the series
 
@@ -10,10 +9,5 @@ way future
 -be able to see how many books I read this year & other cool graphs
 
 
-i bought a new book
-- maybe be able to enter the title of a book (or ISBN?) and then autopopulate the author, pages,
-set status to unread, ask for format 
-(homework, find all english books to scrape, public site API)
+
 -allow a scan function mode to scan the ISBN on the physical book? If i buy a scanner
-- hw: find a better way to mark series
--remove series column

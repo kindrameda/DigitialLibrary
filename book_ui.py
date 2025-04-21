@@ -12,6 +12,10 @@ if "finishedbook" not in st.session_state:
     st.session_state.finishedbook = ""
 if "submit" not in st.session_state:
     st.session_state.submit = False
+if "bookstatus" not in st.session_state:
+    st.session_state.bookstatus = "unread"
+if "booktitle" not in st.session_state:
+    st.session_state.booktitle = ""
 
 st.title("Kindra's Library 📚")
 
@@ -20,31 +24,46 @@ action = st.selectbox('What do you want to do?',options, format_func = formattin
 
 st.markdown('''
     <style>
-        .col-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 40px; /* Increased space between cards */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 2fr);
+            gap: 70px;
+            margin-bottom: 40px;
         }
 
-        .book-container {
-            padding: 15px;
+        .book-card {
+            padding: 20px;
+            margin: 20px;
             border-radius: 10px;
-            border: 1px solid #ddd;
-            background-color: #f9f9f9;
+            border: 1px solid red;
+            background-color: #ffffff;
             text-align: center;
-            width: 300px;
-            color: black;
-            margin-bottom: 20px;
-            flex: 1;
-            max-width: 350px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .book-container img {
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .book-card img {
             width: 100%;
-            height: 400px;
-            object-fit: cover;
+            height: 200px;
+            object-fit: contain;
             border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .book-card h4 {
+            margin: 10px 0;
+            color: #333333;
+            font-size: 18px;
+        }
+
+        .book-card p {
+            margin: 5px 0;
+            color: #666666;
+            font-size: 14px;
         }
     </style>
 ''', unsafe_allow_html=True)
@@ -55,7 +74,9 @@ if action == 'I finished a book':
     )
 
     if st.button("Submit"):
+        st.session_state.bookstatus = 'read'
         booktitle = st.session_state.finishedbook
+        st.session_state.booktitle = booktitle
         if booktitle:
             check_book = '''select * FROM book WHERE title = %s;'''
             cursor.execute(check_book, (booktitle,))
@@ -73,10 +94,18 @@ if action == 'I finished a book':
                     cursor.execute(change_status,(booktitle,))
                     con.commit()
                     st.success(f'You finished {booktitle}, good job!')
-
             else:
                 st.write(f"Not found, would you like to add {booktitle} to your library?")
+    if "bookstatus" in st.session_state and st.session_state.bookstatus == 'read':
+        if st.button('Undo'):
+            undo_status = '''update book set status = 'unread' where title = %s'''
+            cursor.execute(undo_status, (st.session_state.booktitle,))
+            con.commit()
+            st.success(f"I fixed your mistake!")
+            st.session_state.bookstatus = 'unread'
+            del st.session_state.bookstatus
             
+
 elif action == "I want to read a book":
     read_options = ['', 'Pick a random unread book', 'Looking for something specific?']
     selected_option = st.selectbox('Choose your preference:', read_options, format_func = formatting_selectbox)
@@ -117,7 +146,12 @@ elif action == 'I bought a new book!':
         book_format = st.text_input('Format: ')
         book_series = st.text_input('Standalone or series?: ')
         if st.button('Submit'):
-            insert_data(book_title, book_author, book_pages, book_status, book_format, book_series)
+            try:
+                insert_data(book_title, book_author, book_pages, book_status, book_format, book_series)
+                st.success(f"{book_title} added successfully!")
+            except Exception as e:
+                st.error(f"Error adding book: {str(e)}")
+                
     elif selected_book == 'Goodreads search':
         search_by = st.text_input('Enter ISBN or Title')
         if st.button('Search'):
@@ -130,14 +164,46 @@ elif action == 'I bought a new book!':
                         else:
                             st.write(f'Results for title {search_by}: ')
                         
-                        for book in book_details:
-                            st.markdown(
-                                f'''
-                                    <div class='book-container'>
-                                        <img src='{book['picture'] if book['picture'] else 'https://dryofg8nmyqjw.cloudfront.net/images/no-cover.png'}' alt='book_image'>
-                                        <h4>{book['title']}</h4>
-                                        <p><strong>Author: </strong>{book['author']}</p>
-                                        <p><strong>Pages: </strong>{book['pages']}</p>
-                                    </div>
-                                ''', unsafe_allow_html=True
-                            )
+                        for i, book in enumerate(book_details):
+                            # Start a new row every 3 books
+                            if i % 2 == 0:
+                                cols = st.columns(2)
+                            
+                            with cols[i % 2]:
+                                with st.form(key=f"form_{i}"):
+                                    st.markdown(
+                                        f'''
+                                        <div class="book-card">
+                                            <img src='{book["picture"] if book["picture"] else "https://dryofg8nmyqjw.cloudfront.net/images/no-cover.png"}' alt='book_image'>
+                                            <h4>{book["title"]}</h4>
+                                            <p><strong>Author:</strong> {book["author"]}</p>
+                                            <p><strong>Pages:</strong> {book["pages"]}</p>
+                                        </div>
+                                        ''', 
+                                        unsafe_allow_html=True
+                                    )
+                                    
+                                    book_format = st.selectbox(
+                                        'Format:',
+                                        ['', 'hardback', 'paperback', 'eBook', 'audio'],
+                                        key=f"format_{i}",
+                                        format_func=formatting_selectbox
+                                    )
+                                    
+                                    if st.form_submit_button('Add to Library'):
+                                        if book_format == '':
+                                            st.error("Please choose a book format before adding.")
+                                        else:
+                                            try:
+                                                success = insert_data(
+                                                    title=book['title'],
+                                                    author=book['author'],
+                                                    status='unread',
+                                                    pages=int(book['pages']) if book['pages'] else 0,
+                                                    format=book_format,
+                                                    series=book['series']
+                                                )
+                                                if success:
+                                                    st.success(f'{book["title"]} added to your Library!')
+                                            except Exception as e:
+                                                st.error(f"Error adding book: {e}")

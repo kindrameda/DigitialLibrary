@@ -38,18 +38,20 @@ def fetch_book_details(search_by):
             if script_tag:
                 json_content = json.loads(script_tag.string)
                 title_series = json_content.get('name')
-                if "#" in title_series:
+                if "(" in title_series:
                     title_series = title_series.split(' (')
                     title = title_series[0]
                     series = title_series[1][:-1]
+                    series = series.split('#')[-1]
                     book_details = {'series': series, 'title': title}
                 else:
                     title = title_series
-                    book_details = {'title': title}
+                    series = 'standalone'
+                    book_details = {'title': title, 'series': series}
                 pages = json_content.get('numberOfPages')
                 isbn = json_content.get('isbn')
                 author = json_content.get('author')[0]['name']
                 picture = json_content.get('image')
-                book_details.update({'pages': pages, 'author' : author, 'isbn' : isbn, 'picture': picture})
+                book_details.update({'pages': pages, 'author' : author, 'isbn' : isbn, 'picture': picture, 'series': series})
                 books_details.append(book_details)
         return books_details

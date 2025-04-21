@@ -1,5 +1,2 @@
 def formatting_selectbox(option):
-    if option == '':
-        return 'Select an option'
-    else:
-        return option
+    return option if option else 'Select an option...'
