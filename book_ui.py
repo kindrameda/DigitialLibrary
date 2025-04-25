@@ -110,9 +110,11 @@ elif action == "I want to read a book":
     read_options = ['', 'Pick a random unread book', 'Looking for something specific?']
     selected_option = st.selectbox('Choose your preference:', read_options, format_func = formatting_selectbox)
     if selected_option == 'Pick a random unread book':
+        #all_unread_query = '''select title, series_name, series_number from book where status = 'unread';'''
         all_unread_query = '''select title from book where status = 'unread';'''
         cursor.execute(all_unread_query)
         all_unread_books = cursor.fetchall()
+        #print(all_unread_books)
         if all_unread_books:
             random_book = random.choice(all_unread_books)
             st.write(random_book[0])
@@ -178,6 +180,8 @@ elif action == 'I bought a new book!':
                                             <h4>{book["title"]}</h4>
                                             <p><strong>Author:</strong> {book["author"]}</p>
                                             <p><strong>Pages:</strong> {book["pages"]}</p>
+                                            <p><strong> Series Name:</strong> {book["series_name"]}</p>
+                                            <p><strong> Series:</strong> {book["series"]}</p>
                                         </div>
                                         ''', 
                                         unsafe_allow_html=True

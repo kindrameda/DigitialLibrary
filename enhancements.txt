@@ -1,8 +1,5 @@
 future
--under "I finished I book" button, add search dropdown by letter, by title 
-and author
--add undo button to "i finished a book" to unread
-- fix '',
+i want to read a book
 - take into account when i havent read the first book in the series
 
 way future
