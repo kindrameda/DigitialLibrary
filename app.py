@@ -27,7 +27,8 @@ create_query = '''
       pages int,
       status varchar(500),
       format varchar(500),
-      series varchar(500)
+      series_name varchar(500),
+      series_number int
    );'''
 cursor.execute(create_query)
 con.commit()
@@ -38,18 +39,38 @@ def read_file(file_path):
       book_dict = ast.literal_eval(content)
       return book_dict
 
-def insert_data(title, author, pages, status, format, series):
+def insert_data(title, author, pages, status, format, series_name, series_number):
    con = connect_database()
    cursor = con.cursor()
    query = '''
-   insert into book(Title, Author, Pages, Status, Format, Series)
-   values(%s, %s, %s, %s, %s, %s);
+   insert into book(title, author, pages, status, format, series_name, series_number)
+   values(%s, %s, %s, %s, %s, %s, %s);
    '''
-   cursor.execute(query,(title, author, pages, status, format, series))
+   cursor.execute(query,(title, author, pages, status, format, series_name, series_number))
    con.commit()
    cursor.close()
    con.close()
 
+# def add_new_column(column_name, column_type):
+#    con = connect_database()
+#    cursor = con.cursor()
+#    query = f'''alter table book add column {column_name} {column_type}; '''
+#    cursor.execute(query)
+#    con.commit()
+#    cursor.close()
+#    con.close()
+
+def drop_table():
+   con = connect_database()
+   cursor = con.cursor()
+   query = '''drop table if exists book;
+   '''
+   cursor.execute(query)
+   con.commit()
+   cursor.close()
+   con.close()
+   
+# drop_table()
 
 file_path = "library.txt"
 book_dict = read_file(file_path)
@@ -59,6 +80,7 @@ for title, details in book_dict.items():
    pages = details['pages']
    status = details['status']
    format = details['format']
-   series = details['series']
-   # insert_data(title, author, pages, status, format, series)
+   series_name = details['series_name']
+   series_number = details['series_number']
+   #insert_data(title, author, pages, status, format, series_name, series_number)
 

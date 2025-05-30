@@ -1,6 +1,8 @@
 future
 i want to read a book
 - take into account when i havent read the first book in the series
+    Added new function to add new column, still need to run it. 
+- series name and number added, adjust short book, long book etc under I want to read a book
 
 way future
 -be able to see how many books I read this year & other cool graphs
@@ -8,3 +10,12 @@ way future
 
 
 -allow a scan function mode to scan the ISBN on the physical book? If i buy a scanner
+{
+    "The Illuminae Files": {
+        "Illuminae": 1,
+        "Gemina": 2,
+        "Obsidio": 3
+    }
+}
+
+{'The Blood Gift Duology': {'The Blood Trials': 1}, 'Dragon Scale': {'Dragonfall': 1}, 'standalone': {'Juniper & Thorn': 0}, 'The Illuminae Files': {'Illuminae': 1, 'Gemina': 2, 'Obsidio': 3}}

@@ -110,14 +110,33 @@ elif action == "I want to read a book":
     read_options = ['', 'Pick a random unread book', 'Looking for something specific?']
     selected_option = st.selectbox('Choose your preference:', read_options, format_func = formatting_selectbox)
     if selected_option == 'Pick a random unread book':
-        #all_unread_query = '''select title, series_name, series_number from book where status = 'unread';'''
-        all_unread_query = '''select title from book where status = 'unread';'''
+        all_unread_query = '''select title, series_name, series_number from book where status = 'unread';'''
+        #all_unread_query = '''select title, series from book where status = 'unread';'''
         cursor.execute(all_unread_query)
         all_unread_books = cursor.fetchall()
-        #print(all_unread_books)
+        #print (type (all_unread_books))
+        book_dict = {}
+        for book_tuple in all_unread_books:
+            book_series_key = book_tuple[1]
+            if book_series_key in book_dict:
+                book_dict[book_series_key].update({book_tuple[0]: book_tuple[2]})
+            else:
+                book_dict[book_series_key] = {book_tuple[0]: book_tuple[2]}
+        all_min_series_books = []
+
+        for book_series_name, book_pair in book_dict.items():
+            min_series = float('inf')
+            min_pair = (None, None)
+            for book_name, book_series_number in book_pair.items():
+                if book_series_number < min_series:
+                    min_series = book_series_number
+                    min_pair = (book_name, book_series_number)
+            all_min_series_books.append(min_pair)
+      
+
         if all_unread_books:
-            random_book = random.choice(all_unread_books)
-            st.write(random_book[0])
+            random_book = random.choice(all_min_series_books)
+            st.write(random_book)
     elif selected_option == 'Looking for something specific?':
         book_options = ['','A short book', 'A long book', 'A physical book', 'An eBook']
         selected_book = st.selectbox('Filter by:', book_options, format_func = formatting_selectbox)
@@ -146,10 +165,11 @@ elif action == 'I bought a new book!':
         book_pages = st.number_input('Enter pages: ')
         book_status = 'unread'
         book_format = st.text_input('Format: ')
-        book_series = st.text_input('Standalone or series?: ')
+        book_series = st.text_input('standalone or series name?: ')
+        book_series_number = st.number_input('Book number? (if standalone, enter 0):')
         if st.button('Submit'):
             try:
-                insert_data(book_title, book_author, book_pages, book_status, book_format, book_series)
+                insert_data(book_title, book_author, book_pages, book_status, book_format, book_series, book_series_number)
                 st.success(f"{book_title} added successfully!")
             except Exception as e:
                 st.error(f"Error adding book: {str(e)}")
@@ -181,7 +201,7 @@ elif action == 'I bought a new book!':
                                             <p><strong>Author:</strong> {book["author"]}</p>
                                             <p><strong>Pages:</strong> {book["pages"]}</p>
                                             <p><strong> Series Name:</strong> {book["series_name"]}</p>
-                                            <p><strong> Series:</strong> {book["series"]}</p>
+                                            <p><strong> Series Number:</strong> {book["series_number"]}</p>
                                         </div>
                                         ''', 
                                         unsafe_allow_html=True
@@ -205,7 +225,8 @@ elif action == 'I bought a new book!':
                                                     status='unread',
                                                     pages=int(book['pages']) if book['pages'] else 0,
                                                     format=book_format,
-                                                    series=book['series']
+                                                    series_name=book['series_name'],
+                                                    series_number = book['series_number']
                                                 )
                                                 if success:
                                                     st.success(f'{book["title"]} added to your Library!')
